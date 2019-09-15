@@ -1,7 +1,7 @@
 import os
 import sys
-import copy
-import 
+from copy import deepcopy
+from heapq import heappop, heappush
 
 class Puzzle(object):
     def __init__(self, init_state, goal_state):
@@ -15,6 +15,7 @@ class Puzzle(object):
         #TODO: Write your code here
         if not self.checkSolvability(self.init_state):
             self.solvable = False
+            print "Puzzle is unsolvable!"
             return ["UNSOLVABLE"]
         
         # initialise frontier list
@@ -23,33 +24,40 @@ class Puzzle(object):
         explored = []
         # add init state
         # each node consists of the states and the actions it has taken
-        init_node = (self.init_state, [])
-        frontier.append(init_node)
+        
+        init_node = (self.heuristic(self.init_state),self.init_state, [])
+        heappush(frontier,init_node)
         # while frontier not empty
         count = 10
         while frontier:
             # pop frontier list
-            curr_node = frontier.pop(0)
+            curr_node = heappop(frontier)
             
             # add node to explored set
-            print(curr_node)
-            explored.append(curr_node[0])
+            print "Current Node: "
+            print "              Cost: ", curr_node[0]
+            print "             State: ", curr_node[1]
+            print "     Actions Taken: ", curr_node[2]
+            print
+            explored.append(curr_node[1])
+            
+            
             
             # check if goal node
-            if self.checkGoalNode(curr_node[0], self.goal_state):
-                return curr_node[1] # return the actions taken to get to this state
+            if self.checkGoalNode(curr_node[1], self.goal_state):
+                return curr_node[2] # return the actions taken to get to this state
             
             # generate children
-            children = self.generateSuccessors(curr_node[0], curr_node[1])
+            children = self.generateSuccessors(curr_node[1], curr_node[2])
             # for each child
             for child in children:
                 # check if each child is in explored set or in frontier
                 if child in frontier:
                     continue
-                if child[0] in explored:
+                if child[1] in explored:
                     continue
                 # add child to frontier if not explored
-                frontier.append(child)
+                heappush(frontier,child)
             
             #count -= 1
             #if count <= 0:
@@ -87,6 +95,24 @@ class Puzzle(object):
             return True
         else:
             return False
+    
+    def heuristic(self, state):
+        return self.manhattan_dist(state)
+
+    def manhattan_dist(self, state):
+        dist = 0;
+        for i in range(1, 10):
+            x = (i-1) // 3
+            y = (i-1) % 3
+            tile = state[x][y]
+            if tile == 0:
+                goal_x = 2
+                goal_y = 2
+            else:
+                goal_x = (tile-1) // 3
+                goal_y = (tile-1) % 3
+            dist += abs(goal_x - x) + abs(goal_y - y)
+        return dist
 
     # Generate successors for a particular state
     def generateSuccessors(self, state, actions_taken):
@@ -104,76 +130,76 @@ class Puzzle(object):
         children = []
         old_x = blank_tile[0]
         old_y = blank_tile[1]
-        print "Location of Blank (", old_x, ", ", old_y, ")"
+        #print "Location of Blank (", old_x, ", ", old_y, ")"
         
-        print actions_taken
+        #print actions_taken
         # move LEFT --> move blank right --> increase blank y
         if (old_y + 1) < 3:
             tile_to_move = state[old_x][old_y+1]
-            print "Tile to move", tile_to_move, old_x, old_y+1
-            print "Old state: ", state
-            new_state = copy.deepcopy(state)
+            #print "Tile to move", tile_to_move, old_x, old_y+1
+            #print "Old state: ", state
+            new_state = deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x][old_y+1] = 0
             new_actions = list(actions_taken)
             new_actions.append("LEFT")
-            print "Actions Taken: ", new_actions
-            print "New state: ", new_state
-            print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
-            children.append((new_state, new_actions))
+            #print "Actions Taken: ", new_actions
+            #print "New state: ", new_state
+            #print
+            #if not self.checkNumEmptyTiles(state):
+            #    raise ValueError("Wrong Number of empty tiles")
+            children.append((self.heuristic(new_state), new_state, new_actions))
             
         # move RIGHT, move blank left, decrease blank y
         if (old_y - 1) >= 0:
             tile_to_move = state[old_x][old_y-1]
-            print "Tile to move", tile_to_move, old_x, old_y-1
-            print "Old state: ", state
-            new_state = copy.deepcopy(state)
+            #print "Tile to move", tile_to_move, old_x, old_y-1
+            #print "Old state: ", state
+            new_state = deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x][old_y-1] = 0
             new_actions = list(actions_taken)
             new_actions.append("RIGHT")
-            print "Actions Taken: ", new_actions
-            print "New State: ", new_state
-            print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
-            children.append((new_state, new_actions))
-            
+            #print "Actions Taken: ", new_actions
+            #print "New State: ", new_state
+            #print
+            #if not self.checkNumEmptyTiles(state):
+            #   raise ValueError("Wrong Number of empty tiles")
+            children.append((self.heuristic(new_state), new_state, new_actions))
+
         # move UP, move blank right, increase blank x
         if (old_x + 1) < 3:
             tile_to_move = state[old_x+1][old_y]
-            print "Tile to move", tile_to_move, old_x+1, old_y
-            print "Old State: ", state
-            new_state = copy.deepcopy(state)
+            #print "Tile to move", tile_to_move, old_x+1, old_y
+            #print "Old State: ", state
+            new_state = deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x+1][old_y] = 0
             new_actions = list(actions_taken)
             new_actions.append("UP")
-            print "Actions Taken: ", new_actions
-            print "New State: ", new_state
-            print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
-            children.append((new_state, new_actions))
-            
+            #print "Actions Taken: ", new_actions
+            #print "New State: ", new_state
+            #print
+            #if not self.checkNumEmptyTiles(state):
+            #    raise ValueError("Wrong Number of empty tiles")
+            children.append((self.heuristic(new_state), new_state, new_actions))
+
         # move DOWN, move blank left, decrease blank x
         if (old_x - 1) >= 0:
             tile_to_move = state[old_x-1][old_y]
-            print "Tile to move", tile_to_move, old_x-1, old_y
-            print "Old State: ", state
-            new_state = copy.deepcopy(state)
+            #print "Tile to move", tile_to_move, old_x-1, old_y
+            #print "Old State: ", state
+            new_state = deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x-1][old_y] = 0
             new_actions = list(actions_taken)
             new_actions.append("DOWN")
-            print new_actions
-            print "New State: ", new_state
-            print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
-            children.append((new_state, new_actions))
+            #print new_actions
+            #print "New State: ", new_state
+            #print
+            #if not self.checkNumEmptyTiles(state):
+            #    raise ValueError("Wrong Number of empty tiles")
+            children.append((self.heuristic(new_state), new_state, new_actions))
         return children
 
 

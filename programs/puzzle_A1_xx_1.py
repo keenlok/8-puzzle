@@ -15,9 +15,6 @@ class Puzzle(object):
         # return: a list of actions like: ["UP", "DOWN"]
         pass
 
-    def manhattan_dist(curr_state):
-        for i in range(0, 8):
-            curr_state
 
     # You may add more (helper) methods if necessary.
     # Note that our evaluation scripts only call the solve method.
