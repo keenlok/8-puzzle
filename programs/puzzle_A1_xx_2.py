@@ -38,7 +38,7 @@ class Puzzle(object):
         for i in range(1, 9):
             for j in range(i+1, 9):
                 if (state[(j-1)//3][(j-1)%3] > state[(i-1)//3][(i-1)%3]):
-                    inversion_count++
+                    inversion_count += 1
         if inversion_count % 2 == 1:
             return False
         else:
