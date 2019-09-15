@@ -15,6 +15,17 @@ class Puzzle(object):
         if !checkSolvability(self.init_state):
             self.solvable = False
             return ["UNSOLVABLE"]
+        # initialise frontier list
+        # initialise explored list
+        # add init state
+        # while frontier not empty
+            # pop frontier list
+            # add node to explored set
+            # check if goal node
+            # generate children
+            # for each child
+                # check if each child is in explored set
+                # add child to frontier if not explored
         
         
         
