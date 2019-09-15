@@ -1,6 +1,6 @@
 import os
 import sys
-
+import copy
 
 class Puzzle(object):
     def __init__(self, init_state, goal_state):
@@ -12,28 +12,53 @@ class Puzzle(object):
 
     def solve(self):
         #TODO: Write your code here
-        if !checkSolvability(self.init_state):
+        if not self.checkSolvability(self.init_state):
             self.solvable = False
             return ["UNSOLVABLE"]
+        
         # initialise frontier list
+        frontier = []
         # initialise explored list
+        explored = []
         # add init state
+        # each node consists of the states and the actions it has taken
+        init_node = (self.init_state, [])
+        frontier.append(init_node)
         # while frontier not empty
+        count = 10
+        while frontier:
             # pop frontier list
+            curr_node = frontier.pop(0)
+            
             # add node to explored set
+            print(curr_node)
+            explored.append(curr_node[0])
+            
             # check if goal node
+            if self.checkGoalNode(curr_node[0], self.goal_state):
+                return curr_node[1] # return the actions taken to get to this state
+            
             # generate children
+            children = self.generateSuccessors(curr_node[0], curr_node[1])
             # for each child
-                # check if each child is in explored set
+            for child in children:
+                # check if each child is in explored set or in frontier
+                if child in frontier:
+                    continue
+                if child[0] in explored:
+                    continue
                 # add child to frontier if not explored
-        
-        
+                frontier.append(child)
+            
+            #count -= 1
+            #if count <= 0:
+            #    break
         
         # return: a list of actions like: ["UP", "DOWN"]
         pass
 
     # To check the solvability of a state
-    def checkSolvability(state):
+    def checkSolvability(self, state):
         inversion_count = 0
         for i in range(1, 9):
             for j in range(i+1, 9):
@@ -44,8 +69,17 @@ class Puzzle(object):
         else:
             return True
 
+    #def checkIfExplored(node, )
+
+    # check goal node
+    def checkGoalNode(self, state, goal):
+        if state == goal:
+            return True
+        else:
+            return False
+
     # Generate successors for a particular state
-    def generateSuccessors(state, actions_taken):
+    def generateSuccessors(self, state, actions_taken):
         blank_tile = (0, 0)
         for i in range(1, 9):
             x = (i-1) // 3
@@ -57,46 +91,68 @@ class Puzzle(object):
         children = []
         old_x = blank_tile[0]
         old_y = blank_tile[1]
+        
+        print actions_taken
         # move up --> move blank down --> increase blank y
-        if (old_y + 1 < 3:
+        if (old_y + 1) < 3:
             tile_to_move = state[old_x][old_y+1]
-            new_state = list(state)
+            print "Tile to move", tile_to_move
+            print "Old state: ", state
+            new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x][old_y+1] = 0
-            children += [(new_state, actions_taken + "UP")]
+            new_actions = list(actions_taken)
+            new_actions.append("UP")
+            print new_actions
+            print "New state: ", new_state
+            print
+            children.append((new_state, new_actions))
             
         # move down, move blank up, decrease blank y
-        if (old_y - 1 >= 0:
+        if (old_y - 1) >= 0:
             tile_to_move = state[old_x][old_y-1]
-            new_state = list(state)
+            print "Tile to move", tile_to_move
+            print "Old state: ", state
+            new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x][old_y-1] = 0
-            children += [(new_state, actions_taken + "DOWN")]
-
+            new_actions = list(actions_taken)
+            new_actions.append("DOWN")
+            print new_actions
+            print "New State: ", new_state
+            print
+            children.append((new_state, new_actions))
+            
         # move left, move blank right, increase blank x
-        if (old_x + 1 < 3:
+        if (old_x + 1) < 3:
             tile_to_move = state[old_x+1][old_y]
-            new_state = list(state)
+            print "Tile to move", tile_to_move
+            print "Old State: ", state
+            new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x+1][old_y] = 0
-            children += [(new_state, actions_taken + "LEFT")]
-           
+            new_actions = list(actions_taken)
+            new_actions.append("LEFT")
+            print new_actions
+            print "New State: ", new_state
+            print
+            children.append((new_state, new_actions))
+            
         # move right, move blank left, decrease blank x
-        if (old_x - 1 >= 0:
+        if (old_x - 1) >= 0:
             tile_to_move = state[old_x-1][old_y]
-            new_state = list(state)
+            print "Tile to move", tile_to_move
+            print "Old State: ", state
+            new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x-1][old_y] = 0
-            children += [(new_state, actions_taken + "RIGHT")]
-        
+            new_actions = list(actions_taken)
+            new_actions.append("RIGHT")
+            print new_actions
+            print "New State: ", new_state
+            print
+            children.append((new_state, new_actions))
         return children
-            
-        
-            
-
-
-
-
 
 
     # You may add more (helper) methods if necessary.
@@ -106,6 +162,7 @@ class Puzzle(object):
 if __name__ == "__main__":
     # do NOT modify below
     if len(sys.argv) != 3:
+        print(sys.argv)
         raise ValueError("Wrong number of arguments!")
 
     try:
