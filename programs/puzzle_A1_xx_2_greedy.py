@@ -28,12 +28,14 @@ class Puzzle(object):
         init_node = (self.heuristic(self.init_state),self.init_state, [])
         heappush(frontier,init_node)
         # while frontier not empty
-        count = 10
+        count = 0
         while frontier:
             # pop frontier list
             curr_node = heappop(frontier)
             
             # add node to explored set
+            count += 1
+            print "Current Iteration: ", count
             print "Current Node: "
             print "              Cost: ", curr_node[0]
             print "             State: ", curr_node[1]
@@ -52,7 +54,7 @@ class Puzzle(object):
             # for each child
             for child in children:
                 # check if each child is in explored set or in frontier
-                if child in frontier:
+                if self.checkIfContainNode(frontier, child):
                     continue
                 if child[1] in explored:
                     continue
@@ -64,7 +66,16 @@ class Puzzle(object):
             #    break
         
         # return: a list of actions like: ["UP", "DOWN"]
-        pass
+        #pass
+        
+    def checkIfContainNode(self, list, node):
+        for child in list:
+            if child[1] == node[1]:
+                if (child[0] > node[0]):
+                    child[0] = node[0]  # update cost
+                    child[2] = node[2]  # update actions taken
+                return True
+        return False
 
     # To check the solvability of a state
     def checkSolvability(self, state):

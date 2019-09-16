@@ -43,7 +43,7 @@ class Puzzle(object):
             # for each child
             for child in children:
                 # check if each child is in explored set or in frontier
-                if child in frontier:
+                if self.checkIfContainNode(frontier, child):
                     continue
                 if child[0] in explored:
                     continue
@@ -56,13 +56,25 @@ class Puzzle(object):
         
         # return: a list of actions like: ["UP", "DOWN"]
         pass
+        
+    def checkIfContainNode(self, list, node):
+        for child in list:
+            if child[0] == node[0]:
+                return True
+        return False
 
     # To check the solvability of a state
     def checkSolvability(self, state):
         inversion_count = 0
         for i in range(1, 10):
+            tile_i = state[(i-1)//3][(i-1)%3]
+            if tile_i == 0:
+                continue
             for j in range(i+1, 10):
-                if (state[(j-1)//3][(j-1)%3] > state[(i-1)//3][(i-1)%3]):
+                tile_j = state[(j-1)//3][(j-1)%3]
+                if tile_j == 0:
+                    continue
+                if (tile_j < tile_i):
                     inversion_count += 1
         if inversion_count % 2 == 1:
             return False
