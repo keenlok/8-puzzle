@@ -9,6 +9,8 @@ class Puzzle(object):
         self.goal_state = goal_state
         self.actions = list()
         self.solvable = True
+        self.numOfNodes = 0
+        self.maxFrontier = 0
 
     def solve(self):
         #TODO: Write your code here
@@ -32,16 +34,21 @@ class Puzzle(object):
             
             count += 1
             print "Current Iteration: ", count
+            print "Number of nodes generated:   ", self.numOfNodes
+            print "Number of nodes in frontier: ", len(frontier)
+            print "Number of nodes in explored: ", len(explored)
+            print
             print "Current Node: "
             print "             State: ", curr_node[0]
             print " Number of actions: ", len(curr_node[1])
-            print "     Actions Taken: ", curr_node[1]
-            
+            #print "     Actions Taken: ", curr_node[1]
+            print
             # add node to explored set
             explored.append(curr_node[0])
             
             # check if goal node
             if self.checkGoalNode(curr_node[0], self.goal_state):
+                print "Max frontier: ", self.maxFrontier
                 return curr_node[1] # return the actions taken to get to this state
             
             # generate children
@@ -56,6 +63,12 @@ class Puzzle(object):
                 # add child to frontier if not explored
                 frontier.append(child)
             
+            frontier_size = len(frontier)
+            if frontier_size > self.maxFrontier:
+                self.maxFrontier = frontier_size
+
+            print "Max frontier: ", self.maxFrontier
+            print
             #count -= 1
             #if count <= 0:
             #    break
@@ -137,8 +150,9 @@ class Puzzle(object):
             #print "Actions Taken: ", new_actions
             #print "New state: ", new_state
             #print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
+            #if not self.checkNumEmptyTiles(state):
+            #    raise ValueError("Wrong Number of empty tiles")
+            self.numOfNodes += 1
             children.append((new_state, new_actions))
             
         # move RIGHT, move blank left, decrease blank y
@@ -154,8 +168,9 @@ class Puzzle(object):
             #print "Actions Taken: ", new_actions
             #print "New State: ", new_state
             #print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
+            #if not self.checkNumEmptyTiles(state):
+            #    raise ValueError("Wrong Number of empty tiles")
+            self.numOfNodes += 1
             children.append((new_state, new_actions))
             
         # move UP, move blank right, increase blank x
@@ -171,8 +186,9 @@ class Puzzle(object):
             #print "Actions Taken: ", new_actions
             #print "New State: ", new_state
             #print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
+            #if not self.checkNumEmptyTiles(state):
+            #    raise ValueError("Wrong Number of empty tiles")
+            self.numOfNodes += 1
             children.append((new_state, new_actions))
             
         # move DOWN, move blank left, decrease blank x
@@ -188,8 +204,9 @@ class Puzzle(object):
             #print new_actions
             #print "New State: ", new_state
             #print
-            if not self.checkNumEmptyTiles(state):
-                raise ValueError("Wrong Number of empty tiles")
+            #if not self.checkNumEmptyTiles(state):
+            #    raise ValueError("Wrong Number of empty tiles")
+            self.numOfNodes += 1
             children.append((new_state, new_actions))
         return children
 
