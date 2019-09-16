@@ -81,8 +81,18 @@ class Puzzle(object):
     def checkSolvability(self, state):
         inversion_count = 0
         for i in range(1, 10):
+            tile_i = state[(i-1)//3][(i-1)%3]
+            
+            # DO NOT CHECK empty tile
+            if tile_i == 0:
+                continue
             for j in range(i+1, 10):
-                if (state[(j-1)//3][(j-1)%3] > state[(i-1)//3][(i-1)%3]):
+                tile_j = state[(j-1)//3][(j-1)%3]
+                
+                # DO NOT CHECK empty tile
+                if tile_j == 0:
+                    continue
+                if (tile_j < tile_i):
                     inversion_count += 1
         if inversion_count % 2 == 1:
             return False
