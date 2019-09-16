@@ -39,8 +39,8 @@ class Puzzle(object):
             print "Current Node: "
             print "              Cost: ", curr_node[0]
             print "             State: ", curr_node[1]
+            print " Number of actions: ", len(curr_node[2])
             print "     Actions Taken: ", curr_node[2]
-            print
             explored.append(curr_node[1])
             
             
