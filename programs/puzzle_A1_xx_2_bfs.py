@@ -25,13 +25,19 @@ class Puzzle(object):
         init_node = (self.init_state, [])
         frontier.append(init_node)
         # while frontier not empty
-        count = 10
+        count = 0
         while frontier:
             # pop frontier list
             curr_node = frontier.pop(0)
             
+            count += 1
+            print "Current Iteration: ", count
+            print "Current Node: "
+            print "             State: ", curr_node[0]
+            print " Number of actions: ", len(curr_node[1])
+            print "     Actions Taken: ", curr_node[1]
+            
             # add node to explored set
-            print(curr_node)
             explored.append(curr_node[0])
             
             # check if goal node
@@ -115,22 +121,22 @@ class Puzzle(object):
         children = []
         old_x = blank_tile[0]
         old_y = blank_tile[1]
-        print "Location of Blank (", old_x, ", ", old_y, ")"
+        #print "Location of Blank (", old_x, ", ", old_y, ")"
+        #print actions_taken
         
-        print actions_taken
         # move LEFT --> move blank right --> increase blank y
         if (old_y + 1) < 3:
             tile_to_move = state[old_x][old_y+1]
-            print "Tile to move", tile_to_move, old_x, old_y+1
-            print "Old state: ", state
+            #print "Tile to move", tile_to_move, old_x, old_y+1
+            #print "Old state: ", state
             new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x][old_y+1] = 0
             new_actions = list(actions_taken)
             new_actions.append("LEFT")
-            print "Actions Taken: ", new_actions
-            print "New state: ", new_state
-            print
+            #print "Actions Taken: ", new_actions
+            #print "New state: ", new_state
+            #print
             if not self.checkNumEmptyTiles(state):
                 raise ValueError("Wrong Number of empty tiles")
             children.append((new_state, new_actions))
@@ -138,16 +144,16 @@ class Puzzle(object):
         # move RIGHT, move blank left, decrease blank y
         if (old_y - 1) >= 0:
             tile_to_move = state[old_x][old_y-1]
-            print "Tile to move", tile_to_move, old_x, old_y-1
-            print "Old state: ", state
+            #print "Tile to move", tile_to_move, old_x, old_y-1
+            #print "Old state: ", state
             new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x][old_y-1] = 0
             new_actions = list(actions_taken)
             new_actions.append("RIGHT")
-            print "Actions Taken: ", new_actions
-            print "New State: ", new_state
-            print
+            #print "Actions Taken: ", new_actions
+            #print "New State: ", new_state
+            #print
             if not self.checkNumEmptyTiles(state):
                 raise ValueError("Wrong Number of empty tiles")
             children.append((new_state, new_actions))
@@ -155,16 +161,16 @@ class Puzzle(object):
         # move UP, move blank right, increase blank x
         if (old_x + 1) < 3:
             tile_to_move = state[old_x+1][old_y]
-            print "Tile to move", tile_to_move, old_x+1, old_y
-            print "Old State: ", state
+            #print "Tile to move", tile_to_move, old_x+1, old_y
+            #print "Old State: ", state
             new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x+1][old_y] = 0
             new_actions = list(actions_taken)
             new_actions.append("UP")
-            print "Actions Taken: ", new_actions
-            print "New State: ", new_state
-            print
+            #print "Actions Taken: ", new_actions
+            #print "New State: ", new_state
+            #print
             if not self.checkNumEmptyTiles(state):
                 raise ValueError("Wrong Number of empty tiles")
             children.append((new_state, new_actions))
@@ -172,16 +178,16 @@ class Puzzle(object):
         # move DOWN, move blank left, decrease blank x
         if (old_x - 1) >= 0:
             tile_to_move = state[old_x-1][old_y]
-            print "Tile to move", tile_to_move, old_x-1, old_y
-            print "Old State: ", state
+            #print "Tile to move", tile_to_move, old_x-1, old_y
+            #print "Old State: ", state
             new_state = copy.deepcopy(state)
             new_state[old_x][old_y] = tile_to_move
             new_state[old_x-1][old_y] = 0
             new_actions = list(actions_taken)
             new_actions.append("DOWN")
-            print new_actions
-            print "New State: ", new_state
-            print
+            #print new_actions
+            #print "New State: ", new_state
+            #print
             if not self.checkNumEmptyTiles(state):
                 raise ValueError("Wrong Number of empty tiles")
             children.append((new_state, new_actions))
