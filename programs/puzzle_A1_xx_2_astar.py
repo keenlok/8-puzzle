@@ -56,10 +56,16 @@ class Puzzle(object):
     heappush(frontier,init_node)
 
     # Graph Search
+    numOfGenerated = 0
+    numOfExplored = 0
+    maxNumInFrontier = 0
+    iterationNum = 0
     while frontier:
       #frontier.sort(key=getEstimatedCost)
       #curr_node = frontier.pop(0)
       curr_node = heappop(frontier)
+      iterationNum += 1
+      maxNumInFrontier = max(maxNumInFrontier, len(frontier))
 
       # add node to explored set
       #print(curr_node)
@@ -78,12 +84,20 @@ class Puzzle(object):
       # goal test
       if self.checkGoalNode(curr_node[1], self.goal_state):
         print "goal found"
-        self.print_state(curr_node[1])
-        print(curr_node[2]) # actions
-        return curr_node[2] # return the actions taken to get to this state
+
+        self.print_state(curr_node[0])
+        print(curr_node[1])
+        print "Number of nodes generated: ", numOfGenerated
+        print "Number of nodes in explored", numOfExplored
+        print "Number of nodes in frontier", len(frontier)
+        print "Maximum number of nodes in frontier: ", maxNumInFrontier
+        print "Iteration number is ", iterationNum
+        return curr_node[1] # return the actions taken to get to this state
 
       # expands node
       children = self.generateSuccessors(curr_node)
+      numOfGenerated += len(children)
+      numOfExplored += 1
       # for each child
       for child in children:
         # check if each child is in explored set or in frontier
