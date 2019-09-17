@@ -85,14 +85,14 @@ class Puzzle(object):
       if self.checkGoalNode(curr_node[1], self.goal_state):
         print "goal found"
 
-        self.print_state(curr_node[0])
-        print(curr_node[1])
+        self.print_state(curr_node[1])
+        print(curr_node[2])
         print "Number of nodes generated: ", numOfGenerated
         print "Number of nodes in explored", numOfExplored
         print "Number of nodes in frontier", len(frontier)
         print "Maximum number of nodes in frontier: ", maxNumInFrontier
         print "Iteration number is ", iterationNum
-        return curr_node[1] # return the actions taken to get to this state
+        return curr_node[2] # return the actions taken to get to this state
 
       # expands node
       children = self.generateSuccessors(curr_node)
