@@ -1,10 +1,11 @@
 import os
 import sys
 import copy
+from heapq import heappop, heappush
 
 # Gets the estimated path cost of n, f(n), where f(n) = g(n) + h(n)
 def getEstimatedCost(node):
-  return node[4]
+  return node[0]
 
 # Finds the 2d indices of blank tile in the form of tuple
 def getIndexOfBlankTile(state):
@@ -46,41 +47,63 @@ class Puzzle(object):
     init_h = self.computeHeuristic(self.init_state, self.goal_state)
     init_g = 0
     init_f = init_h + init_g
-    init_node = (self.init_state, [], init_h, init_g, init_f)
-    frontier.append(init_node)
+    init_node = (init_f, self.init_state, [], init_h, init_g)
+    #frontier.append(init_node)
+    heappush(frontier,init_node)
 
     # Graph Search
     while frontier:
-      frontier.sort(key=getEstimatedCost)
-      curr_node = frontier.pop(0)
+      #frontier.sort(key=getEstimatedCost)
+      #curr_node = frontier.pop(0)
+      curr_node = heappop(frontier)
 
       # add node to explored set
-      print(curr_node)
-      print "heuristic: ", (self.computeHeuristic(curr_node[0], self.goal_state))
-      explored.append(curr_node[0])
+      #print(curr_node)
+      print "Number of nodes in frontier: ", len(frontier)
+      print "Number of nodes in explored: ", len(explored)
+      print
+      print "Current Node: "
+      print "              Cost: ", curr_node[0]
+      print "             State: "
+      self.print_state(curr_node[1])
+      print " Number of actions: ", len(curr_node[2])
+      print "heuristic: ", (self.computeHeuristic(curr_node[1], self.goal_state))
+      explored.append(curr_node[1])
 
       # goal test
-      if self.checkGoalNode(curr_node[0],self.goal_state):
+      if self.checkGoalNode(curr_node[1], self.goal_state):
         print "goal found"
-        self.print_state(curr_node[0])
-        print(curr_node[1])
-        return curr_node[1] # return the actions taken to get to this state
+        self.print_state(curr_node[1])
+        print(curr_node[2]) # actions
+        return curr_node[2] # return the actions taken to get to this state
 
       # expands node
       children = self.generateSuccessors(curr_node)
       # for each child
       for child in children:
         # check if each child is in explored set or in frontier
-        if child[0] in frontier:
+        if self.checkIfContainNode(frontier, child):
           continue
-        if child[0] in explored:
+        if child[1] in explored:
           continue
         # add child to frontier if not explored
-        frontier.append(child)
+        #frontier.append(child)
+        heappush(frontier, child)
+
 
   # You may add more (helper) methods if necessary.
   # Note that our evaluation scripts only call the solve method.
   # Any other methods that you write should be used within the solve() method.
+  def checkIfContainNode(self, list, node):
+        for child in list:
+            if child[1] == node[1]:
+                #print child
+                #print node
+                if (child[0] > node[0]):
+                    child = node #updates costs and actions taken
+                return True
+        return False
+  
   def isSolvable(self, state):
     inversion_count = 0
     for i in range(0, 9):
@@ -100,7 +123,7 @@ class Puzzle(object):
     for i in range(0, 9):
       if state[i//3][i%3] == 0:
         empty_count += 1
-    print "empty_count is " + str(empty_count)
+    #print "empty_count is " + str(empty_count)
     return empty_count == 1
 
   def checkGoalNode(self, state, goal):
@@ -113,24 +136,24 @@ class Puzzle(object):
 
   # Generate successors for a particular state
   def generateSuccessors(self, curr_node):
-    state = curr_node[0]
-    actions_taken = curr_node[1]
-    h = curr_node[2]
-    g = curr_node[3]
-    f = curr_node[4]
+    state = curr_node[1]
+    actions_taken = curr_node[2]
+    h = curr_node[3]
+    g = curr_node[4]
+    f = curr_node[0]
     blank_tile = getIndexOfBlankTile(state)
     children = []
     old_x = blank_tile[0]
     old_y = blank_tile[1]
-    print "Location of Blank (", old_x, ", ", old_y, ")"
+    #print "Location of Blank (", old_x, ", ", old_y, ")"
 
-    print actions_taken
+    #print actions_taken
     # move LEFT --> move blank right --> increase blank y
     if (old_y + 1) < 3:
       tile_to_move = state[old_x][old_y+1]
-      print "Tile to move", tile_to_move, old_x, old_y+1
-      print "Old state: "
-      self.print_state(state)
+      #print "Tile to move", tile_to_move, old_x, old_y+1
+      #print "Old state: "
+      #self.print_state(state)
 
       new_state = copy.deepcopy(state)
       new_state[old_x][old_y] = tile_to_move
@@ -140,20 +163,20 @@ class Puzzle(object):
       new_h = self.computeHeuristic(new_state, self.goal_state)
       new_g = g + 1 # only one tile is moved
       new_f = new_h + new_g
-      print "Actions Taken: ", new_actions
-      print "New state: "
-      self.print_state(new_state)
+      #print "Actions Taken: ", new_actions
+      #print "New state: "
+      #self.print_state(new_state)
 
       if not self.emptyTilesCount(state):
         raise ValueError("Wrong Number of empty tiles")
-      children.append((new_state, new_actions, new_h, new_g, new_h))
+      children.append((new_f, new_state, new_actions, new_h, new_g))
 
     # move RIGHT, move blank left, decrease blank y
     if (old_y - 1) >= 0:
       tile_to_move = state[old_x][old_y-1]
-      print "Tile to move", tile_to_move, old_x, old_y-1
-      print "Old state: "
-      self.print_state(state)
+      #print "Tile to move", tile_to_move, old_x, old_y-1
+      #print "Old state: "
+      #self.print_state(state)
 
       new_state = copy.deepcopy(state)
       new_state[old_x][old_y] = tile_to_move
@@ -163,20 +186,20 @@ class Puzzle(object):
       new_h = self.computeHeuristic(new_state, self.goal_state)
       new_g = g + 1 # only one tile is moved
       new_f = new_h + new_g
-      print "Actions Taken: ", new_actions
-      print "New State: "
-      self.print_state(new_state)
+      #print "Actions Taken: ", new_actions
+      #print "New State: "
+      #self.print_state(new_state)
 
       if not self.emptyTilesCount(state):
         raise ValueError("Wrong Number of empty tiles")
-      children.append((new_state, new_actions, new_h, new_g, new_h))
+      children.append((new_f, new_state, new_actions, new_h, new_g))
 
     # move UP, move blank right, increase blank x
     if (old_x + 1) < 3:
       tile_to_move = state[old_x+1][old_y]
-      print "Tile to move", tile_to_move, old_x+1, old_y
-      print "Old State: "
-      self.print_state(state)
+      #print "Tile to move", tile_to_move, old_x+1, old_y
+      #print "Old State: "
+      #self.print_state(state)
 
       new_state = copy.deepcopy(state)
       new_state[old_x][old_y] = tile_to_move
@@ -186,20 +209,20 @@ class Puzzle(object):
       new_h = self.computeHeuristic(new_state, self.goal_state)
       new_g = g + 1 # only one tile is moved
       new_f = new_h + new_g
-      print "Actions Taken: ", new_actions
-      print "New State: "
-      self.print_state(new_state)
+      #print "Actions Taken: ", new_actions
+      #print "New State: "
+      #self.print_state(new_state)
 
       if not self.emptyTilesCount(state):
         raise ValueError("Wrong Number of empty tiles")
-      children.append((new_state, new_actions, new_h, new_g, new_h))
+      children.append((new_f, new_state, new_actions, new_h, new_g))
 
     # move DOWN, move blank left, decrease blank x
     if (old_x - 1) >= 0:
       tile_to_move = state[old_x-1][old_y]
-      print "Tile to move", tile_to_move, old_x-1, old_y
-      print "Old State: "
-      self.print_state(state)
+      #print "Tile to move", tile_to_move, old_x-1, old_y
+      #print "Old State: "
+      #self.print_state(state)
 
       new_state = copy.deepcopy(state)
       new_state[old_x][old_y] = tile_to_move
@@ -209,13 +232,13 @@ class Puzzle(object):
       new_h = self.computeHeuristic(new_state, self.goal_state)
       new_g = g + 1 # only one tile is moved
       new_f = new_h + new_g
-      print new_actions
-      print "New State: "
-      self.print_state(new_state)
+      #print new_actions
+      #print "New State: "
+      #self.print_state(new_state)
 
       if not self.emptyTilesCount(state):
         raise ValueError("Wrong Number of empty tiles")
-      children.append((new_state, new_actions, new_h, new_g, new_h))
+      children.append((new_f, new_state, new_actions, new_h, new_g))
     return children
 
 if __name__ == "__main__":
