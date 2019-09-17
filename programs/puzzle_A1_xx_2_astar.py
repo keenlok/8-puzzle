@@ -22,6 +22,9 @@ class Puzzle(object):
     self.goal_state = goal_state
     self.actions = list()
     self.solvable = True
+    self.numOfNodes = 0
+    self.maxFrontier = 0
+
 
   # Computes the sum of manhattan distances of all tiles
   def computeHeuristic(self, curr_state, goal_state):
@@ -32,6 +35,7 @@ class Puzzle(object):
           if curr_state[i][j] in goal_state[goalRowIndex]:
             goalColIndex = goal_state[goalRowIndex].index(curr_state[i][j])
             total += (abs(i - goalRowIndex) + abs(j - goalColIndex))
+    #print total
     return total
 
   def solve(self):
@@ -63,11 +67,12 @@ class Puzzle(object):
       print "Number of nodes in explored: ", len(explored)
       print
       print "Current Node: "
-      print "              Cost: ", curr_node[0]
+      print "             Cost: ", curr_node[0]
       print "             State: "
       self.print_state(curr_node[1])
       print " Number of actions: ", len(curr_node[2])
-      print "heuristic: ", (self.computeHeuristic(curr_node[1], self.goal_state))
+      print "         Heuristic: ", (self.computeHeuristic(curr_node[1], self.goal_state))
+      print
       explored.append(curr_node[1])
 
       # goal test
@@ -89,6 +94,13 @@ class Puzzle(object):
         # add child to frontier if not explored
         #frontier.append(child)
         heappush(frontier, child)
+
+      frontier_size = len(frontier)
+      if frontier_size > self.maxFrontier:
+        self.maxFrontier = frontier_size
+
+      print "Max frontier: ", self.maxFrontier
+      print
 
 
   # You may add more (helper) methods if necessary.
